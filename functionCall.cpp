@@ -23,7 +23,18 @@ int checkMatch ( char *  , char *, char *, char *);
 int findPermission(string & ,char *,char  *, char **);
 
 
-
+int addPathName(string &temp, char * arg, int ACL)
+{
+	temp.append("+");
+	temp.append(arg);
+	if(ACL)
+	{
+		temp.append("+");
+		temp.append("ACL");
+	}
+	return 1;
+	
+}
 
 int checkPermission(char c, char *val)
 {

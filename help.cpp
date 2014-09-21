@@ -34,29 +34,30 @@ int main(int argc, const char * argv[])
 	string group;
 	string operation;
 	
-	
-	
+
 	int result;
 	printf("arc is %d, arv[0] is %s \n", argc , argv[0]);
-	char * objName = NULL;
+	//char * objName = NULL;
 	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0 ;
 
-	
-	
-	
+
 	
 	result = parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
 		     , group,operation);
 	
 	printf("the usr string is %s \n", usr.c_str());
 	
-	
+	/*
 	string str1("./objput");
 	if(string(argv[0]).compare(str1) == 0){
 		objName = (char *)malloc(sizeof(char)*(strlen(argv[argc-1])+1));
 		strcpy(objName,argv[argc-1]);
-	}
+	}*/
 	FILE *newFile ;
+	string fileName(usr);
+	fileName.append("+");
+	fileName.append(argv[argc-1]);
+	/*
 	int FileLength;
 	FileLength = strlen(argv[argc-1])+usr.length()+2;
 	char *fileName = (char*) malloc(FileLength*sizeof(char));
@@ -64,9 +65,9 @@ int main(int argc, const char * argv[])
 	strcat(fileName,"+");
 	strcat(fileName,argv[argc-1]);
 	
-	fileName[FileLength-1] = '\0';
+	fileName[FileLength-1] = '\0';*/
 	
-	newFile = fopen(fileName,"w+");
+	newFile = fopen(fileName.c_str(),"w+");
 	
 	if(newFile == NULL)
 		exit(EXIT_FAILURE);
@@ -81,7 +82,14 @@ int main(int argc, const char * argv[])
 		bufferReadIn = NULL;
 	}
 	fclose(newFile);
+	
+	
 	FILE *metaFile;
+	string metaFileName(fileName);
+	metaFileName.append("+");
+	metaFileName.append("meta");
+
+	/*
 	int metaFileLength = FileLength + strlen("meta")+2;
 	char *metaFileName = (char *)malloc(metaFileLength*sizeof(char));
 	
@@ -89,9 +97,9 @@ int main(int argc, const char * argv[])
 	strcpy(metaFileName,fileName);
 	strcat(metaFileName,"+");
 	strcat(metaFileName,"meta");
-	metaFileName[metaFileLength-1] = '\0';
+	metaFileName[metaFileLength-1] = '\0';*/
 	
-	metaFile = fopen(metaFileName,"w+");
+	metaFile = fopen(metaFileName.c_str(),"w+");
 	if(metaFile == NULL)
 		exit(EXIT_FAILURE);
 	fputs(usr.c_str(),metaFile);
@@ -100,12 +108,18 @@ int main(int argc, const char * argv[])
 	fclose(metaFile);
 	
 	FILE *aclList;
+	string aclListName(fileName);
+	aclListName.append("+");
+	aclListName.append("ACL");
+
+	/*
 	int aclListLength = FileLength + strlen("ACL")+2;
 	char *aclListName = (char *)malloc(aclListLength*sizeof(char));
 	strcpy(aclListName,fileName);
 	strcat(aclListName,"+");
-	strcat(aclListName,"ACL");
-	aclList = fopen(aclListName,"w+");
+	strcat(aclListName,"ACL");*/
+	
+	aclList = fopen(aclListName.c_str(),"w+");
 	if(aclList == NULL)
 		exit(EXIT_FAILURE);
 	fputs(usr.c_str(),aclList);

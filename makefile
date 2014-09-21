@@ -1,5 +1,5 @@
 
-All: objget   objput  objlist objsetcal
+All: objget   objput  objlist objsetcal objgetacl objtestacl
 
 objget :  objget.o  functionCall.o
 	g++ -Wall -o objget  objget.o functionCall.o
@@ -23,6 +23,16 @@ objlist : objlist.o functionCall.o
 objsetcal : objsetacl.o functionCall.o
 	g++ -Wall -o objsetacl objsetacl.o functionCall.o
 	g++ -Wall -c objsetacl.cpp 
+	g++ -Wall -c functionCall.cpp 
+
+objgetacl : objgetacl.o functionCall.o
+	g++ -Wall -o objgetacl objgetacl.o functionCall.o
+	g++ -Wall -c objgetacl.cpp 
+	g++ -Wall -c functionCall.cpp 
+
+objtestacl : objtestacl.o functionCall.o
+	g++ -Wall -o objtestacl objtestacl.o functionCall.o
+	g++ -Wall -c objtestacl.cpp 
 	g++ -Wall -c functionCall.cpp 
 
 clean:

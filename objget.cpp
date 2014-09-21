@@ -43,22 +43,36 @@ int main(int argc, const char * argv[])
 	
 	
 	FILE *filestream;
+	
+	string fileName(usr);
+	addPathName(fileName,(char *)argv[argc-1],0);
+/*
 	int fileLength = strlen(usr.c_str()) + strlen(argv[argc-1]) + 2 ;
 	char * fileName = (char * ) malloc(fileLength * sizeof(char));
 	strcpy(fileName, usr.c_str());
 	strcat(fileName,"+");
 	strcat(fileName,argv[argc-1]);
-	fileName[fileLength-1] = '\0';
-		
+	fileName[fileLength-1] = '\0';*/
+	
+	string fileNameACL(fileName);
+	/*
 	int fileLengthACL = strlen(fileName) + strlen("ACL") + 2 ;
 	char * fileNameACL = (char * ) malloc(fileLengthACL * sizeof(char));
 	strcpy(fileNameACL, fileName);
 	strcat(fileNameACL,"+");
 	strcat(fileNameACL,"ACL");
-	fileNameACL[fileLengthACL-1] = '\0';
+	fileNameACL[fileLengthACL-1] = '\0';*/
+	fileNameACL.append("+");
+	fileNameACL.append("ACL");
 	char * val = NULL;
-	string FileNameString(fileNameACL);
-	findPermission(FileNameString, (char *)usr.c_str(),(char *)group.c_str()
+	
+	
+	
+	
+	
+	
+	//string FileNameString(fileNameACL);
+	findPermission(fileNameACL, (char *)usr.c_str(),(char *)group.c_str()
 		       ,&val);
 	printf("the permission file is %s \n", val);
 	int loop;
@@ -75,7 +89,7 @@ int main(int argc, const char * argv[])
 	if(readPermission == 1)
 	{
 		printf("we have read permission");
-		filestream = fopen(fileName,"r");
+		filestream = fopen(fileName.c_str(),"r");
 		if(filestream == NULL)
 		{
 			printf("no suc file\n");

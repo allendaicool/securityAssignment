@@ -14,5 +14,6 @@ int parseCommand(int , const char ** , int & , int &,int &,int &,
 		 string &, string &, string &);
 int findPermission(string & ,char *,char  *, char **);
 int checkPermission(char, char *);
+int addPathName(string &, char * , int );
 
 #endif /* defined(____functionCall__) */

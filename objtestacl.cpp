@@ -1,12 +1,12 @@
 //
-//  objsetacl.cpp
+//  objtestacl.cpp
 //  
 //
-//  Created by yihong dai on 9/20/14.
+//  Created by yihong dai on 9/21/14.
 //
 //
 
-#include "objsetacl.h"
+#include "objtestacl.h"
 #include "objlist.h"
 #include <iostream>
 #include <string.h>
@@ -22,6 +22,7 @@
 #include <sys/dir.h>
 #include <sys/stat.h>
 #include "functionCall.h"
+
 using namespace std;
 
 int main(int argc, const char * argv[])
@@ -34,7 +35,7 @@ int main(int argc, const char * argv[])
 	string group;
 	string operation;
 	int result;
-
+	
 	printf("arc is %d, arv[0] is %s \n", argc , argv[0]);
 	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0 ;
 	result = parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
@@ -43,7 +44,7 @@ int main(int argc, const char * argv[])
 		uFlag,aFlag, gFlag, lFlag);
 	printf("uval = %s, aVal = %s, gVal = %s", usr.c_str(),group.c_str(),
 	       operation.c_str());
-	
+
 	string temp(usr);
 	/*temp.append("+");
 	temp.append(argv[argc-1]);
@@ -52,37 +53,12 @@ int main(int argc, const char * argv[])
 	addPathName(temp,(char *)argv[argc-1],1);
 	char *val = NULL;
 	findPermission(temp,(char *)usr.c_str(),(char *)group.c_str(),&val);
-	printf("the permission file is %s \n", val);
-	int haveorNot  = checkPermission('p',val);
+	int haveorNot  = checkPermission(operation.c_str()[0],val);
 	if(haveorNot!= 1)
 	{
-		perror("something wrong happens");
+		printf("\ndenied\n");
+		return 0;
 	}
-	FILE *filestream;
-	filestream = fopen(temp.c_str(),"w");
-	if(filestream == NULL)
-	{
-		perror("something happends");
-	}
-	/*
-	string newACL(usr);
-	newACL.append("+");
-	newACL.append(argv[argc-1]);*/
+	printf("\nallowed\n");
 
-	
-	
-	int value ;
-	size_t dum;
-	char * bufferReadIn = NULL;
-	while((value = (int)getline(&bufferReadIn,&dum,stdin))!=-1){
-		
-		printf("\n the string is %s \n",bufferReadIn);
-		fputs(bufferReadIn,filestream);
-		free(bufferReadIn);
-		bufferReadIn = NULL;
-	}
-	fclose(filestream);
-
-	
-	
 }
