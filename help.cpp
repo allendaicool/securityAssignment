@@ -46,6 +46,13 @@ int main(int argc, const char * argv[])
 	parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
 		     , group,operation);
 	
+	if(uFlag != 1 || gFlag!= 1 || aFlag == 1 || lFlag == 1){
+		perror("invalid argument input");
+		exit(EXIT_FAILURE);
+	}
+		
+	
+	
 	printf("the usr string is %s \n", usr.c_str());
 	
 	/*

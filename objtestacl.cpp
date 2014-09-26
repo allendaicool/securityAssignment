@@ -40,6 +40,10 @@ int main(int argc, const char * argv[])
 	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0 ;
 	parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
 			      , group,operation);
+	if(uFlag != 1 || gFlag!= 1 || aFlag != 1 || lFlag == 1){
+		perror("invalid argument input");
+		exit(EXIT_FAILURE);
+	}
 	printf ("uflag = %d,aflag = %d, gflag = %d, lvalue = %d\n",
 		uFlag,aFlag, gFlag, lFlag);
 	printf("uval = %s, gVal = %s, aVal = %c", usr.c_str(),group.c_str(),

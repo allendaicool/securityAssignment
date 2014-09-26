@@ -197,6 +197,10 @@ int parseCommand(int argc , const char ** command, int &uFlag,
 				/*(*group)  = (char *)malloc(strlen(optarg)+1);
 				 strcpy((*group), optarg);
 				 printf("group is %s \n" , *group );*/
+				if(strcmp(optarg,command[argc-1])==0){
+					perror("no group found");
+					exit(EXIT_FAILURE);
+				}
 				group.assign(optarg);
 				
 				break;
