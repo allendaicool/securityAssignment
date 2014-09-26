@@ -13,6 +13,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <getopt.h>
+#include <string.h>
 #include "functionCall.h"
 
 using namespace std;
@@ -40,8 +41,10 @@ int checkPermission(char c, char *val)
 {
 	int loop;
 	int Permission;
+	int strlength;
+	strlength = (int)strlen(val);
 	Permission = -1 ;
-	for(loop = 0; loop < strlen(val);loop++)
+	for(loop = 0; loop < strlength;loop++)
 	{
 		if(val[loop] == c)
 		{
@@ -51,41 +54,48 @@ int checkPermission(char c, char *val)
 	}
 	if(Permission == 1)
 	{
-		printf("we have permission");
+		/*printf("we have permission");*/
+		return 1;
 	}
 	else
 	{
-		perror("we dont have  permssion");
-		exit(EXIT_FAILURE);
+		/*perror("we dont have  permssion");*/
+		return -1;
 	}
 	return 1;
 }
 int findPermission(string &filename, char *first, char * second, char **val)
 {
 	ifstream infile;
-	infile.open(filename);
+	infile.open(filename.c_str());
+	
+	if(infile.fail()){
+		cout<<"file does not exist"<<endl;
+		exit(EXIT_FAILURE);
+	}
 	
 	// insert code here...
     	char *token;
 	char *token2;
 	char *insideToken1;
 	char *insideToken2;
+	char *array;
+	char *delimiterInside;
 	char * delimiter = (char *)" \t";
 	//char *delimiterInside = (char *)".";
-	
 	string temp;
 	int check;
 	while(getline(infile,temp))
 	{
 		
-		char * array = (char *)temp.c_str();
+		array = (char *)temp.c_str();
 		token = strtok(array,delimiter);
 		token2 =strtok(NULL,delimiter);
 		
 		printf("the arrays is %s \n", array);
 		printf("the token is %s \n", token);
 		printf("the toke2 is %s  \n" , token2);
-		char *delimiterInside = (char *)".";
+		delimiterInside = (char *)".";
 		insideToken1 =strtok(token,delimiterInside);
 		printf("the insidetoke is %s \n",insideToken1);
 		insideToken2 = strtok(NULL,delimiterInside);
@@ -116,22 +126,64 @@ int checkMatch ( char * first , char *second, char *std1, char *std2)
 	return  0;
 	
 }
+bool isdefaultPermission(char a)
+{
+	if(a!='r'&&a!='w'&&a!='x')
+		return false;
+	return true;
+	
+}
 
 
+bool checkGroupExist(FILE * stream, const char *group )
+{
+	size_t dum;
+	int val;
+	char *buffer;
+	char *temp;
+	char * delimiter = (char *)"  \t \n";
+	val = (int)getline(&buffer, &dum, stream);
+	if (val == -1)
+		perror("error: something wrong happens\n");
+	temp = strtok(buffer,delimiter);
+	while(temp!= NULL){
+		if(strcmp(temp,group)==0)
+			return true;
+		temp = strtok(NULL,delimiter);
+	}
+	
+	return false;
+	
+}
 int parseCommand(int argc , const char ** command, int &uFlag,
 		 int &gFlag,int &aFlag,
-		 int &lFlag,string &usr , string & group, string &operation)
+		 int &lFlag,string &usr , string & group, char &operation)
 {
 	int c;
+	int enter;
+	enter = -1;
 	while ( (c = getopt(argc,(char * const *)command,"u:g:a:l")) != -1){
 		printf("%c is answer  \n", c);
+		enter = 1;
 		switch(c)
 		{
 			case'a':
 				aFlag = 1 ;
 				/*(*operation)  = (char *)malloc(strlen(optarg)+1);
 				 strcpy((*operation), optarg);*/
-				operation.assign(optarg);
+				if(strlen(optarg)>1){
+					perror(
+				"permission check only need one character");
+					exit(EXIT_FAILURE);
+
+				}
+				operation = optarg[0];
+				if(!isdefaultPermission(operation)){
+					perror(
+					       "permission invalid");
+					exit(EXIT_FAILURE);
+				}
+
 				break;
 			case 'u':
 				uFlag = 1;
@@ -171,6 +223,10 @@ int parseCommand(int argc , const char ** command, int &uFlag,
 			default:
 				abort ();
 		}
+	}
+	if(enter == -1){
+		perror("the wrong input format");
+		exit(EXIT_FAILURE);
 	}
 	return 1;
 }

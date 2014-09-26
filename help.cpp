@@ -32,17 +32,18 @@ int main(int argc, const char * argv[])
 	char *operation = NULL;*/
 	string usr ;
 	string group;
-	string operation;
-	
+	char operation;
+	string fileNameACL;
+	char *storeVal;
+	int overWritePermission;
 
-	int result;
 	printf("arc is %d, arv[0] is %s \n", argc , argv[0]);
 	//char * objName = NULL;
 	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0 ;
 
 
 	
-	result = parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
+	parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
 		     , group,operation);
 	
 	printf("the usr string is %s \n", usr.c_str());
@@ -54,6 +55,7 @@ int main(int argc, const char * argv[])
 		strcpy(objName,argv[argc-1]);
 	}*/
 	FILE *newFile ;
+	FILE *filestream;
 	string fileName(usr);
 	fileName.append("+");
 	fileName.append(argv[argc-1]);
@@ -66,6 +68,26 @@ int main(int argc, const char * argv[])
 	strcat(fileName,argv[argc-1]);
 	
 	fileName[FileLength-1] = '\0';*/
+	
+	storeVal = NULL;
+	filestream = fopen(fileName.c_str(),"r");
+	if(filestream != NULL){
+		fileNameACL.assign(fileName);
+		fileNameACL.append("+");
+		fileNameACL.append("ACL");
+		
+		findPermission(fileNameACL, (char *)usr.c_str(),
+			       (char *)group.c_str(),&storeVal);
+		printf("the permission file is %s \n", storeVal);
+		
+		overWritePermission = checkPermission('w',storeVal);
+		free(storeVal);
+		fclose(filestream);
+		if(overWritePermission != 1){
+			perror("we dont have overwrite permssion");
+			exit(EXIT_FAILURE);
+		}
+	}
 	
 	newFile = fopen(fileName.c_str(),"w+");
 	
@@ -85,10 +107,10 @@ int main(int argc, const char * argv[])
 	
 	
 	FILE *metaFile;
-	string metaFileName(fileName);
+	string metaFileName(usr);
 	metaFileName.append("+");
 	metaFileName.append("meta");
-
+	cout<<metaFileName+"TT"<<endl;
 	/*
 	int metaFileLength = FileLength + strlen("meta")+2;
 	char *metaFileName = (char *)malloc(metaFileLength*sizeof(char));
@@ -99,13 +121,37 @@ int main(int argc, const char * argv[])
 	strcat(metaFileName,"meta");
 	metaFileName[metaFileLength-1] = '\0';*/
 	
-	metaFile = fopen(metaFileName.c_str(),"w+");
-	if(metaFile == NULL)
-		exit(EXIT_FAILURE);
-	fputs(usr.c_str(),metaFile);
-	fputs(" ",metaFile);
-	fputs(group.c_str(),metaFile);
-	fclose(metaFile);
+	metaFile = fopen(metaFileName.c_str(),"r");
+	
+	if(metaFile == NULL){
+		cout<<"getinC"<<endl;
+
+		fclose(metaFile);
+		metaFile = fopen(metaFileName.c_str(),"w");
+		fputs(usr.c_str(),metaFile);
+		fputs(" ",metaFile);
+		fputs(group.c_str(),metaFile);
+		fclose(metaFile);
+		cout<<"getinD"<<endl;
+
+	}
+	else
+	{
+		cout<<"getinA"<<endl;
+
+		if(checkGroupExist(metaFile, group.c_str()))
+			
+			fclose(metaFile);
+		else{
+			cout<<"getinB"<<endl;
+			fclose(metaFile);
+			metaFile = fopen(metaFileName.c_str(),"a");
+			fputs(" ", metaFile);
+			fputs(group.c_str(),metaFile);
+			fclose(metaFile);
+		}
+	}
+	
 	
 	FILE *aclList;
 	string aclListName(fileName);
@@ -134,8 +180,8 @@ int main(int argc, const char * argv[])
 	
 	printf ("uflag = %d,aflag = %d, gflag = %d, lvalue = %d\n",
 		uFlag,aFlag, gFlag, lFlag);
-	printf("uval = %s, aVal = %s, gVal = %s", usr.c_str(),group.c_str(),
-	       operation.c_str());
+	printf("uval = %s, gVal = %s, aVal = %c", usr.c_str(),group.c_str(),
+	       operation);
 	
 	
 	return 0;

@@ -11,9 +11,10 @@
 #include<string>
 using namespace std;
 int parseCommand(int , const char ** , int & , int &,int &,int &,
-		 string &, string &, string &);
+		 string &, string &, char &);
 int findPermission(string & ,char *,char  *, char **);
 int checkPermission(char, char *);
 int addPathName(string &, char * , int );
+bool checkGroupExist(FILE * , const char * );
 
 #endif /* defined(____functionCall__) */

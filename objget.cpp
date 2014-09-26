@@ -9,6 +9,7 @@
 #include "objget.h"
 #include <iostream>
 #include <string>
+#include <string.h>
 #include <fstream>
 #include <unistd.h>
 #include <stdlib.h>
@@ -28,21 +29,23 @@ int main(int argc, const char * argv[])
 	int  lFlag;
 	string usr ;
 	string group;
-	string operation;
-	int result;
+	char operation;
+	int readPermission;
+	char *val;
+	FILE *filestream;
+
 	printf("arc is %d, arv[0] is %s \n", argc , argv[0]);
 	//char * objName = NULL;
 	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0 ;
-	result = parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
+	parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
 			      , group,operation);
 	
 	printf ("uflag = %d,aflag = %d, gflag = %d, lvalue = %d\n",
 		uFlag,aFlag, gFlag, lFlag);
-	printf("uval = %s, aVal = %s, gVal = %s", usr.c_str(),group.c_str(),
-	       operation.c_str());
+	printf("uval = %s, gVal = %s, aVal = %c", usr.c_str(),group.c_str(),
+	       operation);
 	
 	
-	FILE *filestream;
 	
 	string fileName(usr);
 	addPathName(fileName,(char *)argv[argc-1],0);
@@ -64,10 +67,9 @@ int main(int argc, const char * argv[])
 	fileNameACL[fileLengthACL-1] = '\0';*/
 	fileNameACL.append("+");
 	fileNameACL.append("ACL");
-	char * val = NULL;
 	
-	
-	
+	val = NULL;
+
 	
 	
 	
@@ -75,17 +77,29 @@ int main(int argc, const char * argv[])
 	findPermission(fileNameACL, (char *)usr.c_str(),(char *)group.c_str()
 		       ,&val);
 	printf("the permission file is %s \n", val);
+	
+	readPermission = checkPermission('r',val);
+	free(val);
+	
+	/*
 	int loop;
 	int readPermission;
+	int strlength;
+	
+	
+	strlength = (int)strlen(val);
+	
 	readPermission = -1 ;
-	for(loop = 0; loop < strlen(val);loop++)
+	for(loop = 0; loop < strlength ;loop++)
 	{
 		if(val[loop] =='r')
 		{
 			readPermission = 1;
 			break;
 		}
-	}
+	}*/
+	
+	
 	if(readPermission == 1)
 	{
 		printf("we have read permission");

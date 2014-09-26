@@ -32,17 +32,16 @@ int main(int argc, const char * argv[])
 	int  lFlag;
 	string usr ;
 	string group;
-	string operation;
-	int result;
+	char operation;
 
 	printf("arc is %d, arv[0] is %s \n", argc , argv[0]);
 	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0 ;
-	result = parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
+	parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
 			      , group,operation);
 	printf ("uflag = %d,aflag = %d, gflag = %d, lvalue = %d\n",
 		uFlag,aFlag, gFlag, lFlag);
-	printf("uval = %s, aVal = %s, gVal = %s", usr.c_str(),group.c_str(),
-	       operation.c_str());
+	printf("uval = %s, gVal = %s,agVal = %c", usr.c_str(),group.c_str(),
+	       operation);
 	
 	string temp(usr);
 	/*temp.append("+");
@@ -54,9 +53,11 @@ int main(int argc, const char * argv[])
 	findPermission(temp,(char *)usr.c_str(),(char *)group.c_str(),&val);
 	printf("the permission file is %s \n", val);
 	int haveorNot  = checkPermission('p',val);
+	free(val);
 	if(haveorNot!= 1)
 	{
-		perror("something wrong happens");
+		perror("do not have permission");
+		exit(EXIT_FAILURE);
 	}
 	FILE *filestream;
 	filestream = fopen(temp.c_str(),"w");

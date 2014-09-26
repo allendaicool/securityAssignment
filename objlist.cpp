@@ -33,19 +33,18 @@ int main(int argc, const char * argv[])
 	int  lFlag;
 	string usr ;
 	string group;
-	string operation;
-	int result;
+	char operation;
 	struct dirent *entry;
 	struct stat st;;
 	
 	printf("arc is %d, arv[0] is %s \n", argc , argv[0]);
 	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0 ;
-	result = parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
+	parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
 			      , group,operation);
 	printf ("uflag = %d,aflag = %d, gflag = %d, lvalue = %d\n",
 		uFlag,aFlag, gFlag, lFlag);
-	printf("uval = %s, aVal = %s, gVal = %s", usr.c_str(),group.c_str(),
-	       operation.c_str());
+	printf("uval = %s, gVal = %s, aVal = %c", usr.c_str(),group.c_str(),
+	       operation);
 	
 	DIR *currentDir;
 	char *currentDirName = (char *)"./";
@@ -61,10 +60,24 @@ int main(int argc, const char * argv[])
 		if(strstr(entry->d_name,usr.c_str()) != NULL &&
 		   strstr(entry->d_name,"ACL") == NULL&&
 		   strstr(entry->d_name,"meta") == NULL){
-			off_t size;
+			int size;
 			stat(entry->d_name, &st);
-			size = st.st_size;
-			printf(" %s     %lld\n bytes ",entry->d_name,size);
+			size = (int)st.st_size;
+			char * toBeprint = (char *)malloc(sizeof(char)*(
+					strlen(entry->d_name)+1));
+			strcpy(toBeprint,entry->d_name);
+			toBeprint[strlen(entry->d_name)] = '\0';
+					
+			char *limiter = (char *)"+";
+			char *firstName = strtok(toBeprint,limiter);
+			firstName = strtok(NULL,limiter);
+			if(lFlag)
+				printf(" %s     %d\n bytes ",firstName,size);
+			else
+				printf(" %s \n bytes ",firstName);
+
+			if(toBeprint)
+				free(toBeprint);
 			
 		}
 	}

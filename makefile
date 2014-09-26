@@ -1,5 +1,5 @@
 
-All: objget   objput  objlist objsetcal objgetacl objtestacl
+All: objget   objput  objlist objsetacl objgetacl objtestacl
 
 objget :  objget.o  functionCall.o
 	g++ -Wall -o objget  objget.o functionCall.o
@@ -20,7 +20,7 @@ objlist : objlist.o functionCall.o
 	g++ -Wall -c functionCall.cpp  
 
 
-objsetcal : objsetacl.o functionCall.o
+objsetacl : objsetacl.o functionCall.o
 	g++ -Wall -o objsetacl objsetacl.o functionCall.o
 	g++ -Wall -c objsetacl.cpp 
 	g++ -Wall -c functionCall.cpp 
@@ -35,7 +35,18 @@ objtestacl : objtestacl.o functionCall.o
 	g++ -Wall -c objtestacl.cpp 
 	g++ -Wall -c functionCall.cpp 
 
+ARG = -u u1 -g g3 -a x doc
+exec:
+	./objtestacl $(ARG)
+test: 
+	./objput -u u1 -g g1 doc < haha
+	./objget -u u1 -g g1 doc
+	./objlist -u u1
+	./objgetacl -u u1 -g g1 doc
+	./objsetacl -u u1 -g g1 doc < newacl
+	./objtestacl -u u1 -g g3 -a r doc
+	./objtestacl -u u1 -g g3 -a x doc
 clean:
-	rm *.o
+	rm *.o   objtestacl objgetacl objsetacl objlist objput objget
 
 	
