@@ -24,7 +24,7 @@ int main(int argc, const char * argv[])
 	int  gFlag ;
 	int  aFlag;
 	int  lFlag;
-
+	char * fadsfdasf = (char *)malloc(123);
 	
 	/*
 	char *usr = NULL;

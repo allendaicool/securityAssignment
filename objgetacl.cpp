@@ -49,11 +49,8 @@ int main(int argc, const char * argv[])
 	printf("uval = %s, gVal = %s, aVal = %c", usr.c_str(),group.c_str(),
 	       operation);
 	string temp(usr);
-	/*temp.append("+");
-	temp.append(argv[argc-1]);
-	temp.append("+");
-	temp.append("ACL");*/
-	addPathName(temp,(char *)argv[argc-1],1);
+	
+	addPathName(temp,(char *)argv[argc-1],1,1,0);
 	char *val = NULL;
 	findPermission(temp,(char *)usr.c_str(),(char *)group.c_str(),&val);
 	int haveorNot  = checkPermission('v',val);
