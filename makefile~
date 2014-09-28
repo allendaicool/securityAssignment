@@ -1,41 +1,41 @@
+CC=g++
+CFLAGS=-g -Wall
 
-All: objget   objput  objlist objsetacl objgetacl objtestacl
+build: objget   objput  objlist objsetacl objgetacl objtestacl
 
 objget :  objget.o  functionCall.o
-	g++ -Wall -o objget -g   objget.cpp functionCall.cpp
+	$(CC) $(CFLAGS) -o objget    objget.cpp functionCall.cpp
 
 	
 
 objput	: help.o functionCall.o
-	g++ -Wall -o objput  -g   help.cpp functionCall.cpp
+	$(CC) $(CFLAGS) -o objput     help.cpp functionCall.cpp
 
 	
 
 objlist : objlist.o functionCall.o
-	g++ -Wall -o objlist -g   objlist.cpp functionCall.cpp
+	$(CC) $(CFLAGS)  -o objlist    objlist.cpp functionCall.cpp
 
 	
-
-
 objsetacl : objsetacl.o functionCall.o
-	g++ -Wall -o objsetacl -g   objsetacl.cpp functionCall.cpp
+	$(CC) $(CFLAGS)  -o objsetacl    objsetacl.cpp functionCall.cpp
 
 
 
 objgetacl : objgetacl.o functionCall.o
-	g++ -Wall -o objgetacl -g   objgetacl.cpp functionCall.cpp
+	$(CC) $(CFLAGS)  -o objgetacl   objgetacl.cpp functionCall.cpp
 
 
 
 objtestacl : objtestacl.o functionCall.o
-	g++ -Wall -o objtestacl -g   objtestacl.cpp functionCall.cpp
+	$(CC) $(CFLAGS)  -o objtestacl  objtestacl.cpp functionCall.cpp
 
 	
 ARG=testfile.txt
 
-exec:	All
+exec:	build
 	cat $(ARG) > user+group
-test: 	exec
+test: 	build
 	./objput -u u1 -g g1 doc < haha
 	./objget -u u1 -g g1 doc
 	./objlist -u u1
@@ -44,6 +44,7 @@ test: 	exec
 	./objtestacl -u u1 -g g3 -a r doc
 	./objtestacl -u u1 -g g3 -a x doc
 clean:
-	rm *.o   objtestacl objgetacl objsetacl objlist objput objget
-	rm u1+*
+	rm *.o   objtestacl objgetacl objsetacl objlist objput objget *.core
+	rm u*
+
 	
