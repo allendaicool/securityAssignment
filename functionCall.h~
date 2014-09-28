@@ -19,5 +19,5 @@ bool checkGroupExist(FILE * , const char * );
 int checkShellRedirect();
 bool isdefaultPermission(char );
 int checkMatch ( char *  , char *, char *, char *);
-
+int checkifUserGroup (char *, char *,int );
 #endif /* defined(____functionCall__) */

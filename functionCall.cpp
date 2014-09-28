@@ -23,6 +23,70 @@ using namespace std;
  * Parameters:void
  * return: 0;
  */
+
+int checkifUserGroup (char *user, char *group, int listFlag)
+{
+	size_t dum;
+	char *bufferReadin;
+	char *usrGroup = (char *)"user+group";
+	FILE *newFile ;
+	//char *delimiter;
+	int val;
+	size_t found;
+	size_t found2;
+	size_t space;
+	bufferReadin = NULL;
+	newFile = fopen(usrGroup,"r");	
+
+	//delimiter = (char *)" \t\n";
+	if(newFile == NULL)
+		exit(EXIT_FAILURE);
+	while((val = (int)getline(&bufferReadin,&dum,newFile))!=-1){
+		string findpatter(bufferReadin);
+		found = findpatter.find((const char *)user);
+		space = findpatter.find_first_not_of(" \t");		
+		if(listFlag == 1){
+			fclose(newFile);
+			if((int)found != -1 && found == space){			
+				if(bufferReadin)
+					free(bufferReadin);
+				return 1;
+			}
+			else{
+				fprintf(stderr, "username is not in the first\n");
+				exit(2);
+			}
+		}
+			
+		if((int)found == -1)
+			continue;
+		found2  = findpatter.find((const char *)group);
+		if((int)found2 == -1)
+			continue;
+		if(bufferReadin)
+			free(bufferReadin);
+		if(found > found2 || found!= space){
+  			fprintf(stderr, "username is not in the first\n");
+			exit(2);
+		}
+		fclose(newFile);
+		return 1;
+	}
+	
+	if(bufferReadin)
+		free(bufferReadin);
+	fclose(newFile);
+	fprintf(stderr, "There is no such usr and group combination");
+	exit(EXIT_FAILURE);
+	return -1;
+}
+
+
+
+
+
+
+
 int checkShellRedirect()
 {
     

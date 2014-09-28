@@ -25,11 +25,6 @@ int main(int argc, const char * argv[])
 	int  aFlag;
 	int  lFlag;
 
-	
-	/*
-	char *usr = NULL;
-	char *group =  NULL;
-	char *operation = NULL;*/
 	string usr ;
 	string group;
 	char operation;
@@ -41,11 +36,11 @@ int main(int argc, const char * argv[])
 	int val ;
 	size_t dum;
 	char * bufferReadIn;
-	FILE *metaFile;
+	//FILE *metaFile;
 	FILE *aclList;
 
 	printf("arc is %d, arv[0] is %s \n", argc , argv[0]);
-	//char * objName = NULL;
+	
 	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0 ;
 
 
@@ -53,37 +48,29 @@ int main(int argc, const char * argv[])
 	parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
 		     , group,operation);
 	
+	checkifUserGroup((char *)usr.c_str(), (char *)group.c_str(),0);
+	
 	if(uFlag != 1 || gFlag!= 1 || aFlag == 1 || lFlag == 1){
-		perror("invalid argument input");
+		fprintf(stderr, "invalid argument input\n");		
+		//perror("invalid argument input");
 		exit(EXIT_FAILURE);
 	}
 		
 	if(checkShellRedirect()){
-		perror("There is no shell redirect. program stopped");
+		fprintf(stderr, "There is no shell redirect. program stopped\n");		
+		//perror("There is no shell redirect. program stopped");
 		exit(EXIT_FAILURE);
 	}
 	
 	printf("the usr string is %s \n", usr.c_str());
 	
-	/*
-	string str1("./objput");
-	if(string(argv[0]).compare(str1) == 0){
-		objName = (char *)malloc(sizeof(char)*(strlen(argv[argc-1])+1));
-		strcpy(objName,argv[argc-1]);
-	}*/
+        
 	
+	
+
 	string fileName(usr);
 	addPathName(fileName,(char *)argv[argc-1],1,0,0);
 	
-	/*
-	int FileLength;
-	FileLength = strlen(argv[argc-1])+usr.length()+2;
-	char *fileName = (char*) malloc(FileLength*sizeof(char));
-	strcpy(fileName,usr.c_str());
-	strcat(fileName,"+");
-	strcat(fileName,argv[argc-1]);
-	
-	fileName[FileLength-1] = '\0';*/
 	
 	storeVal = NULL;
 	filestream = fopen(fileName.c_str(),"r");
@@ -93,13 +80,19 @@ int main(int argc, const char * argv[])
 
 		findPermission(fileNameACL, (char *)usr.c_str(),
 			       (char *)group.c_str(),&storeVal);
+		if(storeVal == NULL){
+			fprintf(stderr, "we have not found the user and gourp combo in the ACL\n");		
+			//perror("we have not found the user and gourp combo in the ACL ");
+			fprintf(stderr, " it must be the case someone has modified the ACL file\n");
+			exit(EXIT_FAILURE);
+		}	
 		printf("the permission file is %s \n", storeVal);
 		
 		overWritePermission = checkPermission('w',storeVal);
 		free(storeVal);
 		fclose(filestream);
 		if(overWritePermission != 1){
-			perror("we dont have overwrite permssion");
+			fprintf(stderr, "we dont have overwrite permssion\n");
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -120,19 +113,11 @@ int main(int argc, const char * argv[])
 	fclose(newFile);
 	
 	
-
+	/*
 	string metaFileName(usr);
 	addPathName(metaFileName,NULL,0,0,1);
 	cout<<metaFileName+"TT"<<endl;
-	/*
-	int metaFileLength = FileLength + strlen("meta")+2;
-	char *metaFileName = (char *)malloc(metaFileLength*sizeof(char));
 	
-					    
-	strcpy(metaFileName,fileName);
-	strcat(metaFileName,"+");
-	strcat(metaFileName,"meta");
-	metaFileName[metaFileLength-1] = '\0';*/
 	
 	metaFile = fopen(metaFileName.c_str(),"r");
 	
@@ -149,7 +134,7 @@ int main(int argc, const char * argv[])
 	else
 	{
 		cout<<"getinA"<<endl;
-		//cout<<"getinB"<<endl;
+
 		if(checkGroupExist(metaFile, group.c_str())){
 			cout<<"getinE"<<endl;
 			fclose(metaFile);
@@ -162,19 +147,12 @@ int main(int argc, const char * argv[])
 			fputs(group.c_str(),metaFile);
 			fclose(metaFile);
 		}
-	}
+	}*/
 	
 	
-
 	string aclListName(fileName);
 	addPathName(aclListName,NULL,0,1,0);
-	
-	/*
-	int aclListLength = FileLength + strlen("ACL")+2;
-	char *aclListName = (char *)malloc(aclListLength*sizeof(char));
-	strcpy(aclListName,fileName);
-	strcat(aclListName,"+");
-	strcat(aclListName,"ACL");*/
+
 	
 	aclList = fopen(aclListName.c_str(),"w+");
 	if(aclList == NULL)
@@ -183,11 +161,7 @@ int main(int argc, const char * argv[])
 	fputs(".*	",aclList);
 	fputs("rwxpv", aclList);
 	fclose(aclList);
-	
-	
-	
-	
-	//fputs("\0".metaFile);
+
 	
 	printf ("uflag = %d,aflag = %d, gflag = %d, lvalue = %d\n",
 		uFlag,aFlag, gFlag, lFlag);
@@ -198,7 +172,6 @@ int main(int argc, const char * argv[])
 	return 0;
 	
 	
-	// insert code here...
 	
 }
 

@@ -40,7 +40,7 @@ int main(int argc, const char * argv[])
 	parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
 			      , group,operation);
 	if(uFlag != 1 || gFlag!= 1 || aFlag == 1 || lFlag == 1){
-		perror("invalid argument input");
+		fprintf(stderr, "invalid argument input");
 		exit(EXIT_FAILURE);
 	}
 	printf ("uflag = %d,aflag = %d, gflag = %d, lvalue = %d\n",
@@ -49,6 +49,8 @@ int main(int argc, const char * argv[])
 	       operation);
 	
 	
+	checkifUserGroup((char *)usr.c_str(), (char *)group.c_str(),0);
+
 	
 	string fileName(usr);
 	addPathName(fileName,(char *)argv[argc-1],1,0,0);
@@ -61,6 +63,11 @@ int main(int argc, const char * argv[])
 	
 	findPermission(fileNameACL, (char *)usr.c_str(),(char *)group.c_str()
 		       ,&val);
+	if(val == NULL){
+		fprintf(stderr,"we have not found the user and gourp combo in the ACL ");
+		fprintf(stderr," it must be the case someone has modified the ACL file");
+		exit(EXIT_FAILURE);
+	}
 	printf("the permission file is %s \n", val);
 	
 	readPermission = checkPermission('r',val);
@@ -87,7 +94,7 @@ int main(int argc, const char * argv[])
 		fclose(filestream);
 	}
 	else{
-		perror("we dont have read permssion");
+		fprintf(stderr,"we dont have read permssion");
 		exit(EXIT_FAILURE);
 	}
 	

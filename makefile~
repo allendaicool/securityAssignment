@@ -31,11 +31,11 @@ objtestacl : objtestacl.o functionCall.o
 	g++ -Wall -o objtestacl -g   objtestacl.cpp functionCall.cpp
 
 	
+ARG=testfile.txt
 
-ARG = -u u1 -g g3 -a x doc
-exec:
-	./objtestacl $(ARG)
-test: 
+exec:	All
+	cat $(ARG) > user+group
+test: 	exec
 	./objput -u u1 -g g1 doc < haha
 	./objget -u u1 -g g1 doc
 	./objlist -u u1

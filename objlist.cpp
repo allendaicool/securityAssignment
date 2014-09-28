@@ -43,7 +43,7 @@ int main(int argc, const char * argv[])
 			      , group,operation);
 	
 	if(uFlag != 1 || gFlag== 1 || aFlag == 1 ){
-		perror("invalid argument input");
+		fprintf(stderr,"invalid argument input");
 		exit(EXIT_FAILURE);
 	}
 	printf ("uflag = %d,aflag = %d, gflag = %d, lvalue = %d\n",
@@ -51,11 +51,12 @@ int main(int argc, const char * argv[])
 	printf("uval = %s, gVal = %s, aVal = %c", usr.c_str(),group.c_str(),
 	       operation);
 	
+	checkifUserGroup((char *)usr.c_str(), (char *)group.c_str(),1);	
+
 	DIR *currentDir;
 	char *currentDirName = (char *)"./";
 	if ((currentDir = opendir(currentDirName)) == NULL){
-		// exit if problem in opening directory
-		perror("opendir() error");
+		fprintf(stderr,"opendir() error");
 		exit(EXIT_FAILURE);
 	}
 	printf("the begin \n");
