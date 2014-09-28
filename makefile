@@ -31,11 +31,11 @@ objtestacl : objtestacl.o functionCall.o
 	$(CC) $(CFLAGS)  -o objtestacl  objtestacl.cpp functionCall.cpp
 
 	
-ARG=testfile.txt
+ARG=userfile.txt
 
 exec:	build
 	cat $(ARG) > user+group
-test: 	build
+test: 	build		
 	./objput -u u1 -g g1 doc < haha
 	./objget -u u1 -g g1 doc
 	./objlist -u u1
@@ -43,8 +43,8 @@ test: 	build
 	./objsetacl -u u1 -g g1 doc < newacl
 	./objtestacl -u u1 -g g3 -a r doc
 	./objtestacl -u u1 -g g3 -a x doc
+	./objput -u u1 -g g1 doc < haha
 clean:
 	rm *.o   objtestacl objgetacl objsetacl objlist objput objget *.core
-	rm u*
 
 	

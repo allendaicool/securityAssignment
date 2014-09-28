@@ -20,9 +20,16 @@
 
 using namespace std;
 
-
+/* This main function parse the use input and does the sanity check
+ *  on input, and display the file content in the stdout if we have permission
+ */
 int main(int argc, const char * argv[])
 {
+	/* uFlag stands for the user option
+	 * gFlag stands for the group otion
+	 * aFlag stands for the opertaion
+	 * lFlag stands for -l option in objlist
+	 */
 	int  uFlag;
 	int  gFlag ;
 	int  aFlag;
@@ -34,8 +41,9 @@ int main(int argc, const char * argv[])
 	char *val;
 	FILE *filestream;
 
-	printf("arc is %d, arv[0] is %s \n", argc , argv[0]);
-	//char * objName = NULL;
+	/* parse the argument passed in and did some sanity check
+	 * on the user input
+	 */
 	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0 ;
 	parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
 			      , group,operation);
@@ -43,15 +51,16 @@ int main(int argc, const char * argv[])
 		fprintf(stderr, "invalid argument input");
 		exit(EXIT_FAILURE);
 	}
-	printf ("uflag = %d,aflag = %d, gflag = %d, lvalue = %d\n",
-		uFlag,aFlag, gFlag, lFlag);
-	printf("uval = %s, gVal = %s, aVal = %c", usr.c_str(),group.c_str(),
-	       operation);
-	
-	
+	/* check if user and group combination exists in user+group file*/
 	checkifUserGroup((char *)usr.c_str(), (char *)group.c_str(),0);
 
-	
+	/* we do not allow shell redirect in the objget*/
+	if(!checkShellRedirect()){
+		fprintf(stderr,"don't allow shell redirect\n");		
+		exit(EXIT_FAILURE);
+	}
+	/* append string after the username and get a new string
+	 * for example user+doc1 as name for doc file for user*/
 	string fileName(usr);
 	addPathName(fileName,(char *)argv[argc-1],1,0,0);
 	
@@ -60,22 +69,19 @@ int main(int argc, const char * argv[])
 	addPathName(fileNameACL,NULL,0,1,0);
 	val = NULL;
 
-	
+	/* find if we have permission to display the file*/
 	findPermission(fileNameACL, (char *)usr.c_str(),(char *)group.c_str()
 		       ,&val);
 	if(val == NULL){
-		fprintf(stderr,"we have not found the user and gourp combo in the ACL ");
-		fprintf(stderr," it must be the case someone has modified the ACL file");
+		fprintf(stderr,"no user and gourp combo in the ACL ");
+		fprintf(stderr," someone modified the ACL file");
 		exit(EXIT_FAILURE);
 	}
-	printf("the permission file is %s \n", val);
 	
 	readPermission = checkPermission('r',val);
 	free(val);
-	
-	
+	/* if we have permssion, then we display the file content in stdout*/
 	if(readPermission == 1){
-		printf("we have read permission");
 		filestream = fopen(fileName.c_str(),"r");
 		if(filestream == NULL){
 			printf("no suc file\n");

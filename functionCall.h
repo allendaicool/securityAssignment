@@ -15,9 +15,9 @@ int parseCommand(int , const char ** , int & , int &,int &,int &,
 int findPermission(string & ,char *,char  *, char **);
 int checkPermission(char, char *);
 int addPathName(string &, char *, int , int, int);
-bool checkGroupExist(FILE * , const char * );
 int checkShellRedirect();
 bool isdefaultPermission(char );
 int checkMatch ( char *  , char *, char *, char *);
 int checkifUserGroup (char *, char *,int);
+int sanityCheck(char  *);
 #endif /* defined(____functionCall__) */

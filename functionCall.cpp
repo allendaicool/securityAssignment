@@ -19,9 +19,15 @@
 using namespace std;
 
 
-/* This function checks if the shell redirect command exist
- * Parameters:void
- * return: 0;
+
+
+/* This function checks if a certain user and group combinatin
+ * exists in our meta file 
+ *  user: to be checked if a user exist
+ *  group: to be checked if a group exists
+ *  listFlag: indicates if function is called by objlist
+ *  return: 1   if it exist
+ *          -1  if it does not exists
  */
 
 int checkifUserGroup (char *user, char *group, int listFlag)
@@ -30,7 +36,6 @@ int checkifUserGroup (char *user, char *group, int listFlag)
 	char *bufferReadin;
 	char *usrGroup = (char *)"user+group";
 	FILE *newFile ;
-	//char *delimiter;
 	int val;
 	size_t found;
 	size_t found2;
@@ -38,7 +43,6 @@ int checkifUserGroup (char *user, char *group, int listFlag)
 	bufferReadin = NULL;
 	newFile = fopen(usrGroup,"r");	
 
-	//delimiter = (char *)" \t\n";
 	if(newFile == NULL)
 		exit(EXIT_FAILURE);
 	while((val = (int)getline(&bufferReadin,&dum,newFile))!=-1){
@@ -53,7 +57,7 @@ int checkifUserGroup (char *user, char *group, int listFlag)
 				return 1;
 			}
 			else{
-				fprintf(stderr, "username is not in the first\n");
+				fprintf(stderr, "username is not in the first A %d %d \n", (int)found, (int)space);
 				exit(2);
 			}
 		}
@@ -66,7 +70,7 @@ int checkifUserGroup (char *user, char *group, int listFlag)
 		if(bufferReadin)
 			free(bufferReadin);
 		if(found > found2 || found!= space){
-  			fprintf(stderr, "username is not in the first\n");
+  			fprintf(stderr, "username is not in the first B %d %d %d \n", (int)found, (int)found2,(int)space);
 			exit(2);
 		}
 		fclose(newFile);
@@ -83,19 +87,18 @@ int checkifUserGroup (char *user, char *group, int listFlag)
 
 
 
-
-
-
-
+/* This function checks if the shell redirect command exist
+ * Parameters:void
+ * return: 0;
+ */
 int checkShellRedirect()
 {
     
 	if (isatty(fileno(stdin))){
-		puts("stdin is connected to a terminal");
 		return 1;
 	}	
-	else
-    		puts("stdin is NOT connected to a terminal");
+	/*else
+    		puts("stdin is NOT connected to a terminal");*/
   	return 0;
 }
 
@@ -183,7 +186,7 @@ int findPermission(string &filename, char *first, char * second, char **val)
 	infile.open(filename.c_str());
 	
 	if(infile.fail()){
-		cout<<"file does not exist"<<endl;
+		fprintf(stderr, "file does not exist\n");
 		exit(EXIT_FAILURE);
 	}
 	
@@ -210,20 +213,13 @@ int findPermission(string &filename, char *first, char * second, char **val)
 		 */
 		array = (char *)temp.c_str();
 		token = strtok(array,delimiter);
-		token2 =strtok(NULL,delimiter);
-		
-		printf("the arrays is %s \n", array);
-		printf("the token is %s \n", token);
-		printf("the toke2 is %s  \n" , token2);
-		
+		token2 = strtok(NULL,delimiter);	
 		/* we pass the first token u1.* again to
 		 * retrieve the user and group
 		 */
 		delimiterInside = (char *)".";
 		insideToken1 =strtok(token,delimiterInside);
-		printf("the insidetoke is %s \n",insideToken1);
 		insideToken2 = strtok(NULL,delimiterInside);
-		printf("the second toke is %s \n", insideToken2);
 		/*  call the checkMatch to check if there is permission
 		 *  list exist for usr and group combination
 		 */
@@ -274,48 +270,18 @@ bool isdefaultPermission(char a)
 	return true;
 }
 
-/* This function checks if a certain gourp number alreadys exists in 
- * the meta file username groupname1 groupname2........
- *  stream: file keeps the usr info
- *  group: to be checked if a group exists
- *  return: true   if it exist
- *          false  if it does not exists
- */
-bool checkGroupExist(FILE * stream, const char *group)
-{
-	
-	/*  get the entire line to read
-	 *  to find if group number exists
-	 */
-	size_t dum;
-	int val;
-	char *buffer;
-	char *temp;
-	char * delimiter = (char *)"  \t \n";
-	buffer = NULL;
-	val = (int)getline(&buffer, &dum, stream);
-	
-	if (val == -1)
-		perror("error: something wrong happens\n");
-	
-	/* tokenized the string based on the tab space or new newline
-	 */
-	temp = strtok(buffer,delimiter);
-	while(temp != NULL){
-		if(strcmp(temp,group) == 0){
-			if(buffer)
-				free(buffer);
-			return true;
-		}
-	 	temp = strtok(NULL,delimiter);
-	}
-	
-	if(buffer){
-		free(buffer);
-	}	
-	return false;
-}
 
+
+int sanityCheck(char  *str)
+{
+	int i;
+	int len = strlen(str);
+	for(i = 0; i < len; i++){
+		if((str[i]<'A'&&(str[i] > '9'||str[i] < '0')) ||(str[i]<'a'&&str[i]>'Z'&&str[i] != '_')||str[i]>'z')
+			return 0;
+	}
+	return 1;
+}
 
 /* This function parse the commands passed in by using getopt and
  * set corresponding flag
@@ -339,6 +305,7 @@ int parseCommand(int argc , const char ** command, int &uFlag,
 	 * if enter equals to one then loop has been exeucted
 	 * if enter equals to -1 then loop has not been executed
 	 */
+	int sanity;
 	int c;
 	int enter;
 	enter = -1;
@@ -356,29 +323,40 @@ int parseCommand(int argc , const char ** command, int &uFlag,
 			case'a':
 				aFlag = 1 ;
 				if(strlen(optarg)>1){
-					perror(
-				"permission check only need one character");
+					fprintf(stderr,
+				"permission check only need one character\n");
 					exit(EXIT_FAILURE);
 
 				}
 				operation = optarg[0];
 				if(!isdefaultPermission(operation)){
-					perror(
-					       "permission invalid");
+					fprintf(stderr,
+					       "permission invalid\n");
 					exit(EXIT_FAILURE);
 				}
 
 				break;
 			case 'u':
 				uFlag = 1;
+				sanity = sanityCheck((char *)optarg);
+				if(!sanity){
+					fprintf(stderr,"invalid character in usrname\n");
+					exit(EXIT_FAILURE);
+				}
 				usr.assign(optarg);
 				break;
 			case 'g':
 				gFlag = 1 ;
 				if(strcmp(optarg,command[argc-1])==0){
-					perror("no group found");
+					fprintf(stderr,"no group found\n");
 					exit(EXIT_FAILURE);
 				}
+				sanity = sanityCheck((char *)optarg);
+				if(!sanity){
+					fprintf(stderr,"invalid character in groupname\n");
+					exit(EXIT_FAILURE);
+				}
+
 				group.assign(optarg);
 				
 				break;
@@ -408,7 +386,7 @@ int parseCommand(int argc , const char ** command, int &uFlag,
 		}
 	}
 	if(enter == -1){
-		perror("the wrong input format");
+		fprintf(stderr,"\nthe wrong input format\n");
 		exit(EXIT_FAILURE);
 	}
 	return 1;

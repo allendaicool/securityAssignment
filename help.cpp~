@@ -1,10 +1,10 @@
-//
-//  main.cpp
-//  cs4187
-//
-//  Created by yihong dai on 9/18/14.
-//  Copyright (c) 2014 yihong dai. All rights reserved.
-//
+/*****************************************************
+ * FILE NAME: help.cpp
+ *
+ * Created on: Sept 25 2014
+ * Author: Yihong Dai
+ * this function creates new file for specified user
+ *****************************************************/
 
 #include <iostream>
 #include <string>
@@ -18,13 +18,25 @@
 #include "functionCall.h"
 using namespace std;
 
+/* This main function parse the use input and does the sanity check
+ *  on input, and  create a file or overwrite a file if certain 
+ * permission is possessed by the specified user. 
+ */
 int main(int argc, const char * argv[])
 {
+	/* uFlag stands for the user option
+	 * gFlag stands for the group otion
+	* aFlag stands for the opertaion
+	* lFlag stands for -l option in objlist
+	*/
 	int  uFlag;
 	int  gFlag ;
 	int  aFlag;
 	int  lFlag;
-
+	/* the usr, operation and group store the user inputs 
+	 * and several file steams are created to open or overwrite
+	 * the file 		
+	 */
 	string usr ;
 	string group;
 	char operation;
@@ -35,39 +47,34 @@ int main(int argc, const char * argv[])
 	FILE *filestream;
 	int val ;
 	size_t dum;
-	char * bufferReadIn;
-	//FILE *metaFile;
+	char *bufferReadIn;
 	FILE *aclList;
-
-	printf("arc is %d, arv[0] is %s \n", argc , argv[0]);
-	
-	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0 ;
-
-
-	
+	int overWrite;
+	/* parse the argument passed in and did some sanity check
+	 * on the user input
+	 */	
+	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0, overWrite = 0;
 	parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
-		     , group,operation);
+		     ,group,operation);
 	
+	/* check if user and group combination exists in user+group file*/
 	checkifUserGroup((char *)usr.c_str(), (char *)group.c_str(),0);
 	
+	/* check if some options exists. 
+	 *For example -u and -g must appear in the user input */
 	if(uFlag != 1 || gFlag!= 1 || aFlag == 1 || lFlag == 1){
 		fprintf(stderr, "invalid argument input\n");		
 		//perror("invalid argument input");
 		exit(EXIT_FAILURE);
 	}
-		
+	/*check if the shell has been redirected */	
 	if(checkShellRedirect()){
-		fprintf(stderr, "There is no shell redirect. program stopped\n");		
-		//perror("There is no shell redirect. program stopped");
+		fprintf(stderr,"There is no shell redirect.  stopped\n");		
 		exit(EXIT_FAILURE);
 	}
-	
-	printf("the usr string is %s \n", usr.c_str());
-	
-        
-	
-	
 
+	/* append string after the username and get a new string
+	 * for example user+doc1 as name for doc file for user*/
 	string fileName(usr);
 	addPathName(fileName,(char *)argv[argc-1],1,0,0);
 	
@@ -75,19 +82,21 @@ int main(int argc, const char * argv[])
 	storeVal = NULL;
 	filestream = fopen(fileName.c_str(),"r");
 	if(filestream != NULL){
+		overWrite = 1;
 		fileNameACL.assign(fileName);
 		addPathName(fileNameACL,NULL,0,1,0);
-
+		
+		/*find if we have permission to overwrite the existing file
+  		 * allowed when there is p character among the action list*/
 		findPermission(fileNameACL, (char *)usr.c_str(),
 			       (char *)group.c_str(),&storeVal);
 		if(storeVal == NULL){
-			fprintf(stderr, "we have not found the user and gourp combo in the ACL\n");		
-			//perror("we have not found the user and gourp combo in the ACL ");
-			fprintf(stderr, " it must be the case someone has modified the ACL file\n");
+			fprintf(stderr, "no usr group combo in the ACL\n");		
+			fprintf(stderr, "someone modified the ACL file\n");
 			exit(EXIT_FAILURE);
 		}	
-		printf("the permission file is %s \n", storeVal);
-		
+		/* check if permssion is contained among the permission list
+		 */	
 		overWritePermission = checkPermission('w',storeVal);
 		free(storeVal);
 		fclose(filestream);
@@ -103,76 +112,33 @@ int main(int argc, const char * argv[])
 		exit(EXIT_FAILURE);
 	
 	bufferReadIn = NULL;
+	/* read file contents from the input file into the usr file
+	 */
 	while((val = (int)getline(&bufferReadIn,&dum,stdin))!=-1){
-		
-		printf("\n the string is %s \n",bufferReadIn);
 		fputs(bufferReadIn,newFile);
 		free(bufferReadIn);
 		bufferReadIn = NULL;
 	}
 	fclose(newFile);
-	
-	
-	/*
-	string metaFileName(usr);
-	addPathName(metaFileName,NULL,0,0,1);
-	cout<<metaFileName+"TT"<<endl;
-	
-	
-	metaFile = fopen(metaFileName.c_str(),"r");
-	
-	if(metaFile == NULL){
-		cout<<"getinC"<<endl;
-		metaFile = fopen(metaFileName.c_str(),"w");
-		fputs(usr.c_str(),metaFile);
-		fputs(" ",metaFile);
-		fputs(group.c_str(),metaFile);
-		fclose(metaFile);
-		cout<<"getinD"<<endl;
-
+	/* creates a new aclFile for the created file
+	 */
+	if(overWrite == 0){
+		string aclListName(fileName);
+		addPathName(aclListName,NULL,0,1,0);	
+		aclList = fopen(aclListName.c_str(),"w+");
+		if(aclList == NULL)
+			exit(EXIT_FAILURE);
+		fputs(usr.c_str(),aclList);
+		fputs(".*	",aclList);
+		fputs("rwxpv", aclList);
+		fclose(aclList);
 	}
-	else
-	{
-		cout<<"getinA"<<endl;
-
-		if(checkGroupExist(metaFile, group.c_str())){
-			cout<<"getinE"<<endl;
-			fclose(metaFile);
-		}
-		else{
-			cout<<"getinB"<<endl;
-			fclose(metaFile);
-			metaFile = fopen(metaFileName.c_str(),"a");
-			fputs(" ", metaFile);
-			fputs(group.c_str(),metaFile);
-			fclose(metaFile);
-		}
-	}*/
-	
-	
-	string aclListName(fileName);
-	addPathName(aclListName,NULL,0,1,0);
-
-	
-	aclList = fopen(aclListName.c_str(),"w+");
-	if(aclList == NULL)
-		exit(EXIT_FAILURE);
-	fputs(usr.c_str(),aclList);
-	fputs(".*	",aclList);
-	fputs("rwxpv", aclList);
-	fclose(aclList);
-
-	
+	/*
 	printf ("uflag = %d,aflag = %d, gflag = %d, lvalue = %d\n",
 		uFlag,aFlag, gFlag, lFlag);
 	printf("uval = %s, gVal = %s, aVal = %c", usr.c_str(),group.c_str(),
-	       operation);
-	
-	
+	       operation);*/
 	return 0;
-	
-	
-	
 }
 
 

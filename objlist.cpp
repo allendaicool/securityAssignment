@@ -24,9 +24,16 @@
 
 using namespace std;
 
-
+/* This main function lists all the file possessed by
+ * certain usr and might display the file size as well
+ */
 int main(int argc, const char * argv[])
 {
+	/* uFlag stands for the user option
+	 * gFlag stands for the group otion
+	 * aFlag stands for the opertaion
+	 * lFlag stands for -l option in objlist
+	 */
 	int  uFlag;
 	int  gFlag ;
 	int  aFlag;
@@ -37,29 +44,39 @@ int main(int argc, const char * argv[])
 	struct dirent *entry;
 	struct stat st;;
 	
-	printf("arc is %d, arv[0] is %s \n", argc , argv[0]);
+	/* parse the argument passed in and did some sanity check
+	 * on the user input
+	 */
 	uFlag = 0, gFlag = 0, aFlag = 0,lFlag = 0 ;
 	parseCommand(argc,argv,uFlag,gFlag,aFlag,lFlag,usr
 			      , group,operation);
-	
+	/* check if some options exists. 
+	For example -u and -g must appear in the user input */
 	if(uFlag != 1 || gFlag== 1 || aFlag == 1 ){
 		fprintf(stderr,"invalid argument input");
 		exit(EXIT_FAILURE);
 	}
-	printf ("uflag = %d,aflag = %d, gflag = %d, lvalue = %d\n",
-		uFlag,aFlag, gFlag, lFlag);
-	printf("uval = %s, gVal = %s, aVal = %c", usr.c_str(),group.c_str(),
-	       operation);
-	
-	checkifUserGroup((char *)usr.c_str(), (char *)group.c_str(),1);	
 
+	/* check if user and group combination exists in user+group file*/
+	checkifUserGroup((char *)usr.c_str(), (char *)group.c_str(),1);	
+	/* we do not allow shell redirect in the objget*/
+	if(!checkShellRedirect()){
+		fprintf(stderr,"don't allow shell redirect\n");		
+		exit(EXIT_FAILURE);
+	}
+	/* open the current directory to iterate all the files
+	 * contained in that folder and search for the file 
+	 * belonged to the user.
+	 */
 	DIR *currentDir;
 	char *currentDirName = (char *)"./";
 	if ((currentDir = opendir(currentDirName)) == NULL){
 		fprintf(stderr,"opendir() error");
 		exit(EXIT_FAILURE);
 	}
-	printf("the begin \n");
+
+	/* ignore the ACL file other file
+	 * prints off the filename and maybe its size*/
 	while ((entry = readdir(currentDir)) != NULL )
 	{
 		if(strstr(entry->d_name,usr.c_str()) != NULL &&
